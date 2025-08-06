@@ -61,7 +61,7 @@ export const POST = async (request) => {
 
     const files = formData.getAll("images"); // handles multiple files named "images"
 
-    if (!title || !slug || !description || !price || !oldPrice || !categoryId || files.length === 0) {
+    if (!title || !slug || !description || !price || !oldPrice || files.length === 0) {
       return NextResponse.json(
         { error: "All fields are required including at least one image." },
         { status: 400 }
@@ -77,14 +77,6 @@ export const POST = async (request) => {
       );
     }
 
-    // Check if category exists
-    const category = await Category.findById(categoryId);
-    if (!category) {
-      return NextResponse.json(
-        { error: "Invalid category" },
-        { status: 400 }
-      );
-    }
 
     const uploadedImageUrls = [];
 
@@ -116,7 +108,7 @@ export const POST = async (request) => {
       description,
       price,
       oldPrice,
-      category: categoryId,
+      category: categoryId || "UnCategorized",
       sold,
       images: uploadedImageUrls,
       review

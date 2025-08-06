@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession } from "next-auth/react";
 import { useSelector } from "react-redux";
 import { Badge } from "@/components/ui/badge";
+import useSingleUser from "@/hooks/useSingleUser";
 
 const Header = () => {
-  const { data: session, status } = useSession();
+  const { user } = useSingleUser();
+  console.log(user?.image, "user");
   const { totalQuantity } = useSelector((state) => state.cart);
   return (
     <header className="Header font-mono">
@@ -35,19 +36,26 @@ const Header = () => {
 
           {/* Login/Register Button */}
           <div>
-            {session?.user ? (
+            {user ? (
               <div className="flex items-center gap-2 text-white">
-                <Avatar className="border-2 border-white">
+                <Avatar className="border-2 border-white dark:border-gray-800">
                   <AvatarImage
-                    src={`${
-                      session?.user?.image
-                        ? session?.user?.image
-                        : "https://github.com/shadcn.png"
-                    }`}
+                    src={user?.image || "https://github.com/shadcn.png"}
+                    alt={`${user?.name || "User"}'s avatar`}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://github.com/shadcn.png";
+                    }}
                   />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.name
+                      ? user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                      : "CN"}
+                  </AvatarFallback>
                 </Avatar>
-                <h3>{session?.user?.name}</h3>
+                <h3>{user?.name}</h3>
               </div>
             ) : (
               <Link href="/login">
@@ -103,9 +111,7 @@ const Header = () => {
               <Link href="/cart" className="relative">
                 <ShoppingBag className="w-5 h-5 text-gray-700 hover:text-amber-600 transition cursor-pointer" />
                 {totalQuantity > 0 && (
-                  <Badge
-                    className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums absolute -top-2 -right-2 bg-orange-600"
-                  >
+                  <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums absolute -top-2 -right-2 bg-orange-600">
                     {totalQuantity}
                   </Badge>
                 )}

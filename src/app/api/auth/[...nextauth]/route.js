@@ -10,6 +10,8 @@ import { NextResponse } from "next/server";
 export const authOption = {
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
   providers: [
     CredentialsProvider({
@@ -21,20 +23,18 @@ export const authOption = {
       async authorize(credentials) {
         await dbConnect();
         const user = await User.findOne({ email: credentials.email });
-        if (!user) {
-          throw new Error("No user found with this email!");
-        }
+        if (!user) return null;
+        
         const isMatch = await bcrypt.compare(
           credentials.password,
           user.password
         );
-        if (!isMatch) {
-          throw new Error("Incorrect Password!");
-        }
+        if (!isMatch) return null;
+        
         return {
-          id: user._id,
+          id: user._id.toString(),
           name: user.name,
-          email: user.email,
+          email: user.email
         };
       },
     }),
@@ -49,65 +49,48 @@ export const authOption = {
   ],
   pages: {
     signIn: "/login",
+    error: "/login?error=auth-error",
   },
   callbacks: {
-    async signIn({ user: authUser, account }) {
-  if (!account) {
-    return true; // Early return if no account
-  }
-
-  console.log("signIn callback triggered:", authUser, account);
-
-  try {
-    await dbConnect();
-
-    const { providerAccountId, provider } = account;
-    const { name, email: user_email, image } = authUser;
-
-    const payload = {
-      providerAccountId,
-      provider,
-      name,
-      email: user_email,
-      image,
-    };
-    console.log("User payload:", payload);
-
-    const existingUser = await User.findOne({ providerAccountId });
-
-    if (!existingUser) {
-      const newUser = await User.create(payload);
-      console.log("New user created:", newUser);
-    } else {
-      console.log("User already exists:", existingUser);
-    }
-
-    return true;
-  } catch (error) {
-    console.error("SignIn error:", error);
-    return false;
-  }
-},
-
+    async signIn({ user, account }) {
+      if (account.provider === "credentials") return true;
+      
+      await dbConnect();
+      try {
+        const existingUser = await User.findOne({ email: user.email });
+        
+        if (!existingUser) {
+          await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId
+          });
+        }
+        return true;
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return false;
+      }
+    },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id || user._id;
-        token.name = user.name;
+        token.id = user.id;
         token.email = user.email;
       }
       return token;
     },
-
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.name = token.name;
         session.user.email = token.email;
       }
       return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOption);

@@ -21,6 +21,7 @@ import Dashboard from '@/components/Admin-Dashboard/dashboard/Dashboard';
 import { useRouter } from 'next/navigation';
 import AllCategory from '@/components/Admin-Dashboard/category/AllCategory';
 import AddCategory from '@/components/Admin-Dashboard/category/AddCategory';
+import AllUser from '@/components/Admin-Dashboard/user/AllUser';
 
 const AdminDashboard = () => {
 
@@ -79,9 +80,7 @@ const AdminDashboard = () => {
       icon: Users,
       type: 'accordion',
       children: [
-        { id: 'user-list', label: 'All Users' },
-        { id: 'user-add', label: 'Add User' },
-        { id: 'user-roles', label: 'User Roles' }
+        { id: 'user-list', label: 'All Users' }
       ]
     },
     {
@@ -178,6 +177,10 @@ const AdminDashboard = () => {
         case 'category-add':
             return(
                 <AddCategory/>
+            );
+        case 'user-list':
+            return(
+                <AllUser/>
             );
 
       case 'slider':

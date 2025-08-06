@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 const Dashboard = () => {
     const { items } = useSelector((state) => state.products);
     const dispatch = useDispatch();
-    console.log(items,"Dashboard");
     useEffect(() => {
         dispatch(getProducts());
       }, [dispatch]);

@@ -18,7 +18,21 @@ const AllCategory = () => {
 
 
     if (!categories || categories?.length === 0) {
-    return <p className="text-center py-6">No Category found.</p>;
+    return (
+      <div className="min-h-screen">
+              <div className="max-w-4xl mx-auto px-4">
+                <div className="text-center py-16">
+                  <LayoutGrid className="mx-auto h-16 w-16 text-gray-300 mb-4" />
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                    No Category Found!
+                  </h2>
+                  <p className="text-gray-600 mb-8">
+                    Looks like you haven't added any category yet.
+                  </p>
+                </div>
+              </div>
+            </div>
+    )
   }
     return (
         <div className="space-y-4 lg:space-y-6">
