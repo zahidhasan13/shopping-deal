@@ -123,7 +123,7 @@ const ProductDetailsPage = () => {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>{productData?.title}</BreadcrumbPage>
+                <BreadcrumbPage className="truncate">{productData?.title}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
